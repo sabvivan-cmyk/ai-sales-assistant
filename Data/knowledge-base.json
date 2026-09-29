@@ -1,0 +1,75 @@
+[
+  {
+    "id": "corporate-website",
+    "name": "Разработка корпоративного сайта",
+    "description": "Проектирование и разработка сайта компании с адаптивным дизайном, каталогом услуг, формами заявок и удобной системой управления контентом.",
+    "priceDescription": "от 250 000 ₽, срок от 8 недель",
+    "upsellServiceIds": [
+      "crm-integration",
+      "seo-optimization",
+      "technical-support"
+    ]
+  },
+  {
+    "id": "online-store",
+    "name": "Разработка интернет-магазина",
+    "description": "Интернет-магазин с каталогом, поиском, корзиной, онлайн-оплатой, личным кабинетом покупателя и интеграцией со службами доставки.",
+    "priceDescription": "от 450 000 ₽, срок от 12 недель",
+    "upsellServiceIds": [
+      "customer-account",
+      "crm-integration",
+      "seo-optimization",
+      "technical-support"
+    ]
+  },
+  {
+    "id": "customer-account",
+    "name": "Личный кабинет клиента",
+    "description": "Защищённый раздел для клиентов с профилем, историей заказов, документами, уведомлениями и отслеживанием статусов.",
+    "priceDescription": "от 180 000 ₽, срок от 6 недель",
+    "upsellServiceIds": [
+      "crm-integration",
+      "technical-support"
+    ]
+  },
+  {
+    "id": "crm-integration",
+    "name": "Интеграция с CRM",
+    "description": "Передача заявок и заказов с сайта в CRM, синхронизация статусов, клиентских данных и настройка автоматических сценариев обработки лидов.",
+    "priceDescription": "от 90 000 ₽ в зависимости от CRM и состава интеграции",
+    "upsellServiceIds": [
+      "analytics-setup",
+      "technical-support"
+    ]
+  },
+  {
+    "id": "seo-optimization",
+    "name": "SEO-оптимизация",
+    "description": "Технический аудит, сбор семантики, оптимизация структуры и контента сайта для роста видимости в поисковых системах.",
+    "priceDescription": "от 60 000 ₽ в месяц",
+    "upsellServiceIds": [
+      "analytics-setup",
+      "technical-support"
+    ]
+  },
+  {
+    "id": "analytics-setup",
+    "name": "Настройка веб-аналитики",
+    "description": "Настройка систем аналитики, целей, электронной коммерции и понятных отчётов по источникам обращений и продажам.",
+    "priceDescription": "от 45 000 ₽ за первичную настройку",
+    "upsellServiceIds": [
+      "seo-optimization",
+      "technical-support"
+    ]
+  },
+  {
+    "id": "technical-support",
+    "name": "Техническая поддержка",
+    "description": "Мониторинг работоспособности, обновления, резервное копирование, устранение ошибок и небольшие доработки по согласованному регламенту.",
+    "priceDescription": "от 35 000 ₽ в месяц",
+    "upsellServiceIds": [
+      "seo-optimization",
+      "analytics-setup"
+    ]
+  }
+]

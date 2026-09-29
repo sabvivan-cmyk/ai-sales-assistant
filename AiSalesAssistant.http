@@ -1,0 +1,6 @@
+@AiSalesAssistant_HostAddress = http://localhost:5163
+
+GET {{AiSalesAssistant_HostAddress}}/api/knowledge
+Accept: application/json
+
+###
