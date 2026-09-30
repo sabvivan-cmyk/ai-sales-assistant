@@ -6,6 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddSingleton<IKnowledgeBaseService, KnowledgeBaseService>();
+builder.Services.AddSingleton<IAssistantService, AssistantService>();
 
 const string LocalDevelopmentCorsPolicy = "LocalDevelopment";
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];

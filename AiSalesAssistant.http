@@ -4,3 +4,43 @@ GET {{AiSalesAssistant_HostAddress}}/api/knowledge
 Accept: application/json
 
 ###
+
+# Существующая услуга
+POST {{AiSalesAssistant_HostAddress}}/api/assistant
+Content-Type: application/json
+
+{
+  "message": "Здравствуйте, нам нужна SEO-оптимизация сайта."
+}
+
+###
+
+# Услуга с подходящей допродажей
+POST {{AiSalesAssistant_HostAddress}}/api/assistant
+Content-Type: application/json
+
+{
+  "message": "Здравствуйте, хотим интернет-магазин. Можно ли потом подключить его к CRM?"
+}
+
+###
+
+# Вопрос, которого нет в базе знаний
+POST {{AiSalesAssistant_HostAddress}}/api/assistant
+Content-Type: application/json
+
+{
+  "message": "Проводите ли вы обучение сотрудников работе с бухгалтерской программой?"
+}
+
+###
+
+# Пустое сообщение — ожидается HTTP 400
+POST {{AiSalesAssistant_HostAddress}}/api/assistant
+Content-Type: application/json
+
+{
+  "message": ""
+}
+
+###
