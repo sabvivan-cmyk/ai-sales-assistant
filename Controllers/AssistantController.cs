@@ -11,8 +11,11 @@ public sealed class AssistantController(IAssistantService assistantService) : Co
     [HttpPost]
     [ProducesResponseType<AssistantResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
-    public ActionResult<AssistantResponse> Post([FromBody] AssistantRequest request)
+    public async Task<ActionResult<AssistantResponse>> Post(
+        [FromBody] AssistantRequest request,
+        CancellationToken cancellationToken)
     {
-        return Ok(assistantService.CreateResponse(request.Message));
+        var response = await assistantService.CreateResponseAsync(request.Message, cancellationToken);
+        return Ok(response);
     }
 }

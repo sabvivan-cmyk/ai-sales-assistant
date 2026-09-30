@@ -4,5 +4,5 @@ namespace AiSalesAssistant.Services;
 
 public interface IAssistantService
 {
-    AssistantResponse CreateResponse(string message);
+    Task<AssistantResponse> CreateResponseAsync(string message, CancellationToken cancellationToken = default);
 }

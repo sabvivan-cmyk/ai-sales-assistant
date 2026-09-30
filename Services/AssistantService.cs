@@ -3,7 +3,10 @@ using AiSalesAssistant.Models;
 
 namespace AiSalesAssistant.Services;
 
-public sealed partial class AssistantService(IKnowledgeBaseService knowledgeBaseService) : IAssistantService
+public sealed partial class AssistantService(
+    IKnowledgeBaseService knowledgeBaseService,
+    ILlmService llmService,
+    ILogger<AssistantService> logger) : IAssistantService
 {
     private static readonly HashSet<string> StopWords = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -11,7 +14,9 @@ public sealed partial class AssistantService(IKnowledgeBaseService knowledgeBase
         "она", "они", "оно", "потом", "при", "про", "это", "этот", "хотим", "хочу"
     };
 
-    public AssistantResponse CreateResponse(string message)
+    public async Task<AssistantResponse> CreateResponseAsync(
+        string message,
+        CancellationToken cancellationToken = default)
     {
         var knowledgeItems = knowledgeBaseService.GetItems();
         var messageTokens = Tokenize(message);
@@ -26,25 +31,37 @@ public sealed partial class AssistantService(IKnowledgeBaseService knowledgeBase
         var relevantItem = rankedItems.FirstOrDefault()?.Item;
         if (relevantItem is null)
         {
-            return new AssistantResponse
-            {
-                ClientReply = "Спасибо за обращение. В нашей базе знаний пока недостаточно информации, чтобы дать точный ответ. Менеджер уточнит детали и вернётся к вам с информацией.",
-                ManagerSuggestion = "Релевантная услуга и обоснованная допродажа по текущей базе знаний не определены. Уточните потребность клиента."
-            };
+            return CreateNoKnowledgeFallback();
         }
 
-        var upsellItem = FindUpsell(relevantItem, knowledgeItems, messageTokens);
+        var upsellItems = FindUpsells(relevantItem, knowledgeItems, messageTokens);
 
-        return new AssistantResponse
+        try
         {
-            ClientReply = $"Здравствуйте! По вашему обращению подходит услуга «{relevantItem.Name}». {relevantItem.Description} Ориентировочная стоимость: {relevantItem.PriceDescription}. Менеджер уточнит детали и объём работ.",
-            ManagerSuggestion = upsellItem is null
-                ? "В базе знаний нет связанной услуги для обоснованной допродажи."
-                : $"Можно предложить связанную услугу «{upsellItem.Name}». {upsellItem.Description} Ориентировочная стоимость: {upsellItem.PriceDescription}."
-        };
+            var llmResponse = await llmService.GenerateResponseAsync(
+                message,
+                relevantItem,
+                upsellItems,
+                cancellationToken);
+
+            if (llmResponse is not null)
+            {
+                return llmResponse;
+            }
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception exception)
+        {
+            logger.LogError(exception, "LLM service failed while creating an assistant response");
+        }
+
+        return CreateKnowledgeFallback(relevantItem, upsellItems.FirstOrDefault());
     }
 
-    private static KnowledgeBaseItem? FindUpsell(
+    private static IReadOnlyList<KnowledgeBaseItem> FindUpsells(
         KnowledgeBaseItem relevantItem,
         IReadOnlyList<KnowledgeBaseItem> knowledgeItems,
         IReadOnlySet<string> messageTokens)
@@ -59,7 +76,29 @@ public sealed partial class AssistantService(IKnowledgeBaseService knowledgeBase
             .OrderByDescending(result => result!.Score)
             .ThenBy(result => result!.Index)
             .Select(result => result!.Item)
-            .FirstOrDefault();
+            .ToArray();
+    }
+
+    private static AssistantResponse CreateNoKnowledgeFallback()
+    {
+        return new AssistantResponse
+        {
+            ClientReply = "Спасибо за обращение. В нашей базе знаний пока недостаточно информации, чтобы дать точный ответ. Менеджер уточнит детали и вернётся к вам с информацией.",
+            ManagerSuggestion = "Релевантная услуга и обоснованная допродажа по текущей базе знаний не определены. Уточните потребность клиента."
+        };
+    }
+
+    private static AssistantResponse CreateKnowledgeFallback(
+        KnowledgeBaseItem relevantItem,
+        KnowledgeBaseItem? upsellItem)
+    {
+        return new AssistantResponse
+        {
+            ClientReply = $"Здравствуйте! По вашему обращению подходит услуга «{relevantItem.Name}». {relevantItem.Description} Ориентировочная стоимость: {relevantItem.PriceDescription}. Менеджер уточнит детали и объём работ.",
+            ManagerSuggestion = upsellItem is null
+                ? "В базе знаний нет связанной услуги для обоснованной допродажи."
+                : $"Можно предложить связанную услугу «{upsellItem.Name}». {upsellItem.Description} Ориентировочная стоимость: {upsellItem.PriceDescription}."
+        };
     }
 
     private static int CalculateScore(KnowledgeBaseItem item, IReadOnlySet<string> messageTokens)

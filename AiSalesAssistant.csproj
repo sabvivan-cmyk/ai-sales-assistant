@@ -15,4 +15,8 @@
     <Content Update="Data\knowledge-base.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="AiSalesAssistant.Tests\**\*.cs" />
+  </ItemGroup>
+
 </Project>

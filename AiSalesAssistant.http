@@ -15,7 +15,7 @@ Content-Type: application/json
 
 ###
 
-# Услуга с подходящей допродажей
+# Реальный запрос через OpenRouter (требуется Llm:ApiKey в User Secrets)
 POST {{AiSalesAssistant_HostAddress}}/api/assistant
 Content-Type: application/json
 

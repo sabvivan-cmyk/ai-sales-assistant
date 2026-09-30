@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="AiSalesAssistant.csproj" />
+  <Project Path="AiSalesAssistant.Tests/AiSalesAssistant.Tests.csproj" />
 </Solution>

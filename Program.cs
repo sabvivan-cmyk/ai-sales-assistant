@@ -1,4 +1,6 @@
 using AiSalesAssistant.Services;
+using AiSalesAssistant.Configuration;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,7 +8,19 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddSingleton<IKnowledgeBaseService, KnowledgeBaseService>();
-builder.Services.AddSingleton<IAssistantService, AssistantService>();
+builder.Services.AddScoped<IAssistantService, AssistantService>();
+builder.Services.Configure<LlmOptions>(builder.Configuration.GetSection(LlmOptions.SectionName));
+builder.Services.AddHttpClient<ILlmService, OpenRouterLlmService>((serviceProvider, client) =>
+{
+    var options = serviceProvider.GetRequiredService<IOptions<LlmOptions>>().Value;
+
+    if (Uri.TryCreate(options.BaseUrl.TrimEnd('/') + "/", UriKind.Absolute, out var baseAddress))
+    {
+        client.BaseAddress = baseAddress;
+    }
+
+    client.Timeout = TimeSpan.FromSeconds(Math.Clamp(options.TimeoutSeconds, 1, 120));
+});
 
 const string LocalDevelopmentCorsPolicy = "LocalDevelopment";
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
